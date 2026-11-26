@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Contact | EduNova{% endblock %}
+{% block content %}
+<section class="page-hero section-wrap"><span class="eyebrow">LET'S CONNECT</span><h1>We'd love to<br><span class="gradient-text">hear from you.</span></h1><p>Questions, ideas or feedback? Send us a message.</p></section>
+<section class="section-wrap contact-layout"><div class="contact-aside"><div class="contact-art">✉</div><h2>Every great idea<br>starts with a conversation.</h2><p>Use the form to get in touch with the EduNova team.</p></div><form class="form-card contact-form" method="post">{% csrf_token %}<label>Your name<input type="text" name="name" placeholder="Your name" required></label><label>Email address<input type="email" name="email" placeholder="you@example.com" required></label><label>Subject<input type="text" name="subject" placeholder="How can we help?" required></label><label>Your message<textarea name="message" rows="5" placeholder="Write your message..." required></textarea></label><button class="button button-full" type="submit">Send message ↗</button></form></section>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Create Account | EduNova{% endblock %}
+{% block content %}
+<section class="auth-layout section-wrap"><div class="auth-visual"><img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1100&q=85" alt="Students studying together"><div class="auth-visual-caption"><span>✦</span><h2>Make room for<br>what's next.</h2><p>Your next opportunity could start with one new skill.</p></div></div><div class="auth-panel"><span class="eyebrow">JOIN THE COMMUNITY</span><h1>Create your<br><span class="gradient-text">account.</span></h1><p class="auth-subtitle">Start learning, growing and building your future.</p>
+<form class="form-card auth-form" method="post">{% csrf_token %}
+{% if form %}{{ form.as_p }}{% else %}
+<label>Username<input type="text" name="username" placeholder="Choose a username" autocomplete="username" required></label>
+<label>Email address<input type="email" name="email" placeholder="you@example.com" autocomplete="email" required></label>
+<label>Password<input type="password" name="password" placeholder="Create a strong password" autocomplete="new-password" required></label>
+{% endif %}
+<button class="button button-full" type="submit">Create account <span>↗</span></button></form><p class="auth-switch">Already have an account? <a href="/login/">Log in</a></p></div></section>
+{% endblock %}

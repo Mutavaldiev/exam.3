@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Log In | EduNova{% endblock %}
+{% block content %}
+<section class="auth-layout section-wrap"><div class="auth-visual login-visual"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1100&q=85" alt="Online learning workspace"><div class="auth-visual-caption"><span>✦</span><h2>Progress is built<br>one day at a time.</h2><p>Come back to your ideas. Your next chapter is waiting.</p></div></div><div class="auth-panel"><span class="eyebrow">WELCOME BACK</span><h1>Good to see<br><span class="gradient-text">you again.</span></h1><p class="auth-subtitle">Log in and continue your learning journey.</p>
+<form class="form-card auth-form" method="post">{% csrf_token %}
+<label>Username<input type="text" name="username" placeholder="Your username" autocomplete="username" required></label>
+<label>Password<input type="password" name="password" placeholder="Your password" autocomplete="current-password" required></label>
+<button class="button button-full" type="submit">Log in <span>↗</span></button></form><p class="auth-switch">New to EduNova? <a href="/register/">Create an account</a></p></div></section>
+{% endblock %}

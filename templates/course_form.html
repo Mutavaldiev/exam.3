@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Create a Course | EduNova{% endblock %}
+{% block content %}
+<section class="form-page section-wrap"><div class="form-intro"><span class="eyebrow">SHARE WHAT YOU KNOW</span><h1>Create something<br><span class="gradient-text">meaningful.</span></h1><p>Build a course that helps someone take their next step.</p><img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=900&q=85" alt="Team collaborating"></div>
+<form class="form-card main-form" method="post" enctype="multipart/form-data">{% csrf_token %}<div class="form-card-heading"><span class="form-icon">✦</span><div><h2>Course details</h2><p>Fill in the information below.</p></div></div>
+{% if form %}{{ form.as_p }}{% else %}
+<label>Course title<input type="text" name="title" placeholder="e.g. The Art of Web Design" required></label>
+<label>Category<select name="category" required><option value="">Choose a category</option>{% for category in categories %}<option value="{{ category.pk }}">{{ category.name }}</option>{% endfor %}</select></label>
+<label>Description<textarea name="description" rows="6" placeholder="What will learners discover in this course?" required></textarea></label>
+<label>Course cover image<input type="file" name="photo" accept="image/*"></label>
+{% endif %}
+<button class="button button-full" type="submit">Publish course <span>↗</span></button><a class="cancel-link" href="/">Cancel and go back</a></form></section>
+{% endblock %}

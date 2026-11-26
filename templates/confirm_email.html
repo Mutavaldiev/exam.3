@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}Verify Email | EduNova{% endblock %}
+{% block content %}
+<section class="confirm-page section-wrap"><div class="confirm-card"><div class="confirm-icon">✉</div><span class="eyebrow">ONE LAST STEP</span><h1>Check your inbox.</h1><p>Enter the confirmation code sent to your email address to activate your EduNova account.</p><form class="verify-form" method="post">{% csrf_token %}<label for="confirm-code">Confirmation code</label><input id="confirm-code" type="text" name="code" inputmode="numeric" maxlength="6" placeholder="000000" required><button class="button button-full" type="submit">Verify email ↗</button></form><p class="fine-print">Didn't receive a code? Check your spam folder or try again later.</p></div></section>
+{% endblock %}

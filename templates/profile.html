@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}My Profile | EduNova{% endblock %}
+{% block content %}
+<section class="page-hero section-wrap"><span class="eyebrow">YOUR ACCOUNT</span><h1>Your profile<span class="heading-dot">.</span></h1><p>A little space that belongs to you.</p></section>
+<section class="section-wrap profile-layout"><div class="profile-card"><div class="profile-avatar">{{ user.username|slice:":1"|upper }}</div><h2>{{ user.username }}</h2><p>{{ user.email }}</p><span class="status-pill">● Active learner</span></div><div class="profile-details"><span class="eyebrow">ACCOUNT INFORMATION</span><h2>Your details</h2><div class="snapshot-row"><span>Username</span><strong>{{ user.username }}</strong></div><div class="snapshot-row"><span>Email</span><strong>{{ user.email }}</strong></div><div class="snapshot-row"><span>Member since</span><strong>{{ user.date_joined|date:"M Y" }}</strong></div><a class="button" href="/my-courses/">View my courses ↗</a></div></section>
+{% endblock %}

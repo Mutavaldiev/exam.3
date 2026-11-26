@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ category.name|default:"Category" }} Courses | EduNova{% endblock %}
+{% block content %}
+<section class="page-hero section-wrap"><span class="eyebrow">EXPLORE A NEW INTEREST</span><h1>{{ category.name|default:"Course collection" }}<span class="heading-dot">.</span></h1><p>Find a learning path that matches your curiosity and goals.</p></section>
+<section class="section-wrap section-block"><div class="course-grid">
+{% for course in courses %}
+<article class="course-card reveal"><a class="course-image" href="{% url 'course_detail' course.pk %}">{% if course.photo %}<img src="{{ course.photo.url }}" alt="{{ course.title }}">{% else %}<img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=80" alt="Course learning">{% endif %}<span class="image-tag">{{ category.name|default:"Course" }}</span></a><div class="course-card-body"><div class="course-meta"><span>✦ Learning path</span><span>Self-paced</span></div><h3><a href="{% url 'course_detail' course.pk %}">{{ course.title }}</a></h3><p>{{ course.description|truncatewords:18 }}</p><div class="course-card-bottom"><span class="course-author">EduNova</span><a class="round-arrow" href="{% url 'course_detail' course.pk %}">↗</a></div></div></article>
+{% empty %}<div class="empty-state"><div class="empty-icon">✧</div><h3>No courses in this category yet</h3><p>Try another category or return to explore all courses.</p><a class="button" href="/">Browse courses</a></div>{% endfor %}
+</div></section>
+{% endblock %}

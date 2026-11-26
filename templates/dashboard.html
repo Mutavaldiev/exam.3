@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | EduNova{% endblock %}
+{% block content %}
+<section class="page-hero section-wrap"><span class="eyebrow">YOUR OVERVIEW</span><h1>Welcome to your<br><span class="gradient-text">dashboard.</span></h1><p>A clear view of your learning and teaching activity.</p></section>
+<section class="section-wrap section-block"><div class="dashboard-welcome"><div><span class="eyebrow">SIGNED IN AS</span><h2>{{ user.username }}</h2><p>Make today a day of progress.</p></div><div class="welcome-symbol">✦</div></div><div class="dashboard-tiles"><a class="dashboard-tile" href="/my-courses/"><span class="tile-icon">▣</span><h3>My learning</h3><p>Return to the courses you've joined.</p><span class="tile-arrow">↗</span></a><a class="dashboard-tile" href="/"><span class="tile-icon">⌕</span><h3>Explore courses</h3><p>Discover a new topic or skill.</p><span class="tile-arrow">↗</span></a><a class="dashboard-tile" href="/profile/"><span class="tile-icon">◎</span><h3>My profile</h3><p>View your account details.</p><span class="tile-arrow">↗</span></a></div></section>
+{% endblock %}
