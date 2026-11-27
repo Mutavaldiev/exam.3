@@ -50,6 +50,12 @@
 
     <div class="header-actions">
 
+      <!-- Night Mode Button -->
+      <button class="theme-switch" id="themeToggle" type="button">
+        <span class="theme-switch-icon" id="themeIcon">☾</span>
+        <span id="themeText">Night mode</span>  
+      </button>
+
       {% if user.is_authenticated %}
 
         <span class="welcome-user">Hi, {{ user.username }}</span>
@@ -102,7 +108,6 @@
 
         <div class="social-dots">
 
-          <!-- Instagram -->
           <a href="https://www.instagram.com/footballtj.01/"
              target="_blank"
              rel="noopener noreferrer"
@@ -111,7 +116,6 @@
             <i>◎</i>
           </a>
 
-          <!-- Telegram -->
           <a href="https://t.me/+992002667720"
              target="_blank"
              rel="noopener noreferrer"
