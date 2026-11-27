@@ -1,320 +1,645 @@
 
-/* EduNova interactions */
-
-document.addEventListener("DOMContentLoaded", () => {
-
-  // =====================================
-  // NIGHT MODE
-  // =====================================
-// =================================
-// EDUNOVA THEME SWITCH
-// =================================
-
-const themeToggle = document.getElementById("themeToggle");
-const themeIcon = document.getElementById("themeIcon");
-const themeText = document.getElementById("themeText");
-
-function setTheme(theme) {
-
-    document.body.classList.toggle(
-        "dark-mode",
-        theme === "dark"
-    );
-
-    if (themeIcon) {
-        themeIcon.textContent =
-            theme === "dark" ? "☀" : "☾";
-    }
-
-    if (themeText) {
-        themeText.textContent =
-            theme === "dark" ? "Day mode" : "Night mode";
-    }
-
-    if (themeToggle) {
-        themeToggle.setAttribute(
-            "aria-pressed",
-            String(theme === "dark")
-        );
-    }
-}
-
-let currentTheme = "light";
-
-try {
-    currentTheme = localStorage.getItem("edunova-theme") || "light";
-} catch (error) {}
-
-setTheme(currentTheme);
-
-themeToggle?.addEventListener("click", function () {
-
-    const newTheme =
-        document.body.classList.contains("dark-mode")
-            ? "light"
-            : "dark";
-
-    setTheme(newTheme);
-
-    try {
-        localStorage.setItem("edunova-theme", newTheme);
-    } catch (error) {}
-
-});
-
-  // =====================================
-  // MOBILE MENU
-  // =====================================
-
-  const menuButton = document.querySelector("[data-menu-toggle]");
-  const menu = document.querySelector("[data-menu]");
-
-  if (menuButton && menu) {
-
-    menuButton.addEventListener("click", () => {
-
-      const open = menu.classList.toggle("is-open");
-
-      menuButton.setAttribute(
-        "aria-expanded",
-        String(open)
-      );
-
-    });
-
-    menu.querySelectorAll("a").forEach(link => {
-
-      link.addEventListener("click", () => {
-
-        menu.classList.remove("is-open");
-
-        menuButton.setAttribute(
-          "aria-expanded",
-          "false"
-        );
-
-      });
-
-    });
-
-  }
-
-
-  // =====================================
-  // REVEAL ANIMATIONS
-  // =====================================
-
-  const revealItems = document.querySelectorAll(".reveal");
-
-  if ("IntersectionObserver" in window) {
-
-    const observer = new IntersectionObserver(entries => {
-
-      entries.forEach(entry => {
-
-        if (entry.isIntersecting) {
-
-          entry.target.classList.add("is-visible");
-
-          observer.unobserve(entry.target);
-
-        }
-
-      });
-
-    }, { threshold: 0.12 });
-
-    revealItems.forEach(item => observer.observe(item));
-
-  } else {
-
-    revealItems.forEach(item =>
-      item.classList.add("is-visible")
-    );
-
-  }
-
-
-  // =====================================
-  // COURSE SEARCH AND FILTERS
-  // =====================================
-
-  const search = document.querySelector("[data-course-search]");
-
-  const cards = [
-    ...document.querySelectorAll("[data-course-card]")
-  ];
-
-  const filterButtons = [
-    ...document.querySelectorAll("[data-filter]")
-  ];
-
-  let activeFilter = "all";
-
-  const normalize = value =>
-    (value || "").toLowerCase().trim();
-
-  const applyFilters = () => {
-
-    const term = normalize(search?.value);
-
-    cards.forEach(card => {
-
-      const category = normalize(card.dataset.category);
-
-      const text = normalize(card.textContent);
-
-      const categoryMatch =
-        activeFilter === "all" ||
-        category.includes(activeFilter);
-
-      const searchMatch =
-        !term || text.includes(term);
-
-      card.classList.toggle(
-        "is-hidden",
-        !(categoryMatch && searchMatch)
-      );
-
-    });
-
-  };
-
-  search?.addEventListener("input", applyFilters);
-
-  filterButtons.forEach(button => {
-
-    button.addEventListener("click", () => {
-
-      activeFilter = button.dataset.filter || "all";
-
-      filterButtons.forEach(item => {
-
-        item.classList.toggle(
-          "is-active",
-          item === button
-        );
-
-      });
-
-      applyFilters();
-
-    });
-
-  });
-
-
-  // =====================================
-  // DELETE CONFIRMATION
-  // =====================================
-
-  document.querySelectorAll(".button-danger").forEach(button => {
-
-    button.closest("form")?.addEventListener("submit", event => {
-
-      if (!window.confirm("Are you sure you want to continue?")) {
-
-        event.preventDefault();
-
-      }
-
-    });
-
-  });
-
-
-  // =====================================
-  // IMAGE FALLBACK
-  // =====================================
-
-  document.querySelectorAll("img").forEach(img => {
-
-    img.addEventListener("error", () => {
-
-      img.classList.add("image-unavailable");
-
-      img.alt = img.alt || "Image unavailable";
-
-    }, { once: true });
-
-  });
-
-});
-
-
-
-
-
-
-/* =========================================
-   COURSES — LEFT / RIGHT REVEAL
-========================================= */
 /* ==========================================
-   3D COURSE REVEAL ANIMATION
+   EDUNOVA 2.0 — PREMIUM INTERACTIONS
+   Frontend only: HTML + CSS + JavaScript
 ========================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    const courses = [
-        ...document.querySelectorAll(
-            ".course-card, [data-course-card]"
-        )
-    ];
+    "use strict";
 
-    if (!courses.length) return;
+    /* ======================================
+       1. SELECT ELEMENTS
+    ====================================== */
 
-    const grid = courses[0].parentElement;
+    const body = document.body;
+    const header = document.getElementById("siteHeader");
+    const menuToggle = document.getElementById("menuToggle");
+    const menu = document.getElementById("mainMenu");
 
-    if (grid) {
-        grid.classList.add("courses-split-grid");
+    const themeToggle = document.getElementById("themeToggle");
+    const themeIcon = document.getElementById("themeIcon");
+    const themeText = document.getElementById("themeText");
+
+    const scrollProgress = document.getElementById("scrollProgress");
+    const backToTop = document.getElementById("backToTop");
+
+
+    /* ======================================
+       2. THEME SYSTEM
+    ====================================== */
+
+    function getSavedTheme() {
+        try {
+            return localStorage.getItem("edunova-theme") || "light";
+        } catch (error) {
+            return "light";
+        }
     }
 
-    // Курсҳоро ба ду самт ҷудо мекунем
-    courses.forEach((course, index) => {
+    function setTheme(theme) {
 
-        course.classList.remove(
-            "split-left",
-            "split-right",
-            "split-visible"
-        );
+        const dark = theme === "dark";
 
-        if (index % 2 === 0) {
-            course.classList.add("split-left");
-        } else {
-            course.classList.add("split-right");
+        body.classList.toggle("dark-mode", dark);
+
+        if (themeIcon) {
+            themeIcon.className = dark
+                ? "fa-solid fa-sun"
+                : "fa-solid fa-moon";
         }
 
-        course.style.transitionDelay =
-            `${(index % 2) * 150}ms`;
+        if (themeText) {
+            themeText.textContent = dark
+                ? "Light mode"
+                : "Dark mode";
+        }
+
+        if (themeToggle) {
+            themeToggle.setAttribute(
+                "aria-pressed",
+                String(dark)
+            );
+        }
+
+        try {
+            localStorage.setItem("edunova-theme", theme);
+        } catch (error) {
+            // Theme still works without localStorage.
+        }
+    }
+
+    setTheme(getSavedTheme());
+
+    themeToggle?.addEventListener("click", () => {
+
+        const newTheme = body.classList.contains("dark-mode")
+            ? "light"
+            : "dark";
+
+        setTheme(newTheme);
 
     });
 
-    // Ҳангоми ба экран даромадан аниматсия иҷро мешавад
-    const observer = new IntersectionObserver(
-        (entries, observer) => {
 
-            entries.forEach(entry => {
+    /* ======================================
+       3. MOBILE NAVIGATION
+    ====================================== */
 
-                if (entry.isIntersecting) {
+    function closeMenu() {
 
-                    entry.target.classList.add(
-                        "split-visible"
-                    );
+        if (!menu || !menuToggle) return;
 
-                    // Як маротиба иҷро мешавад
-                    observer.unobserve(entry.target);
-                }
+        menu.classList.remove("is-open");
+
+        menuToggle.classList.remove("active");
+
+        menuToggle.setAttribute("aria-expanded", "false");
+
+    }
+
+    menuToggle?.addEventListener("click", () => {
+
+        const opened = menu?.classList.toggle("is-open");
+
+        menuToggle.classList.toggle("active", Boolean(opened));
+
+        menuToggle.setAttribute(
+            "aria-expanded",
+            String(Boolean(opened))
+        );
+
+    });
+
+    menu?.querySelectorAll("a").forEach(link => {
+
+        link.addEventListener("click", closeMenu);
+
+    });
+
+    document.addEventListener("click", event => {
+
+        if (
+            menu &&
+            menuToggle &&
+            !menu.contains(event.target) &&
+            !menuToggle.contains(event.target)
+        ) {
+            closeMenu();
+        }
+
+    });
+
+    window.addEventListener("resize", () => {
+
+        if (window.innerWidth > 700) {
+            closeMenu();
+        }
+
+    });
+
+
+    /* ======================================
+       4. SCROLL EFFECTS
+    ====================================== */
+
+    let scrollScheduled = false;
+
+    function updateScrollEffects() {
+
+        const scrollTop = window.scrollY;
+
+        const pageHeight =
+            document.documentElement.scrollHeight -
+            window.innerHeight;
+
+        const progress = pageHeight > 0
+            ? (scrollTop / pageHeight) * 100
+            : 0;
+
+        if (scrollProgress) {
+            scrollProgress.style.width = `${progress}%`;
+        }
+
+        header?.classList.toggle(
+            "header-scrolled",
+            scrollTop > 30
+        );
+
+        backToTop?.classList.toggle(
+            "show",
+            scrollTop > 450
+        );
+
+        scrollScheduled = false;
+
+    }
+
+    window.addEventListener("scroll", () => {
+
+        if (!scrollScheduled) {
+
+            requestAnimationFrame(updateScrollEffects);
+
+            scrollScheduled = true;
+
+        }
+
+    }, { passive: true });
+
+    updateScrollEffects();
+
+    backToTop?.addEventListener("click", () => {
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+    });
+
+
+    /* ======================================
+       5. REVEAL ANIMATIONS
+    ====================================== */
+
+    const revealElements = document.querySelectorAll(
+        ".reveal, .course-card, .dashboard-tile, " +
+        ".content-card, .section-heading, .stats-strip"
+    );
+
+    const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    if ("IntersectionObserver" in window && !reduceMotion) {
+
+        const revealObserver = new IntersectionObserver(
+            (entries, observer) => {
+
+                entries.forEach(entry => {
+
+                    if (entry.isIntersecting) {
+
+                        entry.target.classList.add("is-visible");
+
+                        observer.unobserve(entry.target);
+
+                    }
+
+                });
+
+            },
+            {
+                threshold: 0.12,
+                rootMargin: "0px 0px -40px 0px"
+            }
+        );
+
+        revealElements.forEach((element, index) => {
+
+            element.style.transitionDelay =
+                `${Math.min(index % 5, 4) * 80}ms`;
+
+            revealObserver.observe(element);
+
+        });
+
+    } else {
+
+        revealElements.forEach(element => {
+            element.classList.add("is-visible");
+        });
+
+    }
+
+
+    /* ======================================
+       6. COURSE SEARCH AND FILTER
+    ====================================== */
+
+    const searchInput = document.querySelector(
+        "[data-course-search]"
+    );
+
+    const courseCards = [
+        ...document.querySelectorAll("[data-course-card]")
+    ];
+
+    const filterButtons = [
+        ...document.querySelectorAll("[data-filter]")
+    ];
+
+    let activeFilter = "all";
+
+    function normalizeText(value) {
+
+        return String(value || "")
+            .toLowerCase()
+            .trim();
+
+    }
+
+    function filterCourses() {
+
+        const searchTerm = normalizeText(searchInput?.value);
+
+        let visibleCount = 0;
+
+        courseCards.forEach(card => {
+
+            const category = normalizeText(
+                card.dataset.category
+            );
+
+            const cardText = normalizeText(
+                card.textContent
+            );
+
+            const matchesCategory =
+                activeFilter === "all" ||
+                category.includes(activeFilter);
+
+            const matchesSearch =
+                !searchTerm ||
+                cardText.includes(searchTerm);
+
+            const visible =
+                matchesCategory && matchesSearch;
+
+            card.classList.toggle("is-hidden", !visible);
+
+            if (visible) {
+                visibleCount++;
+            }
+
+        });
+
+        const emptyState = document.querySelector(
+            "[data-empty-state]"
+        );
+
+        if (emptyState) {
+            emptyState.hidden = visibleCount !== 0;
+        }
+
+    }
+
+    searchInput?.addEventListener("input", filterCourses);
+
+    filterButtons.forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            activeFilter = normalizeText(
+                button.dataset.filter || "all"
+            );
+
+            filterButtons.forEach(item => {
+
+                const active = item === button;
+
+                item.classList.toggle("is-active", active);
+
+                item.setAttribute(
+                    "aria-pressed",
+                    String(active)
+                );
 
             });
 
-        },
-        {
-            threshold: 0.15
-        }
+            filterCourses();
+
+        });
+
+    });
+
+
+    /* ======================================
+       7. 3D COURSE CARD EFFECT
+    ====================================== */
+
+    const cards3D = document.querySelectorAll(
+        ".course-card, .dashboard-tile"
     );
 
-    courses.forEach(course => {
-        observer.observe(course);
+    if (!reduceMotion && window.matchMedia("(hover: hover)").matches) {
+
+        cards3D.forEach(card => {
+
+            card.addEventListener("pointermove", event => {
+
+                const rect = card.getBoundingClientRect();
+
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                const rotateX = ((centerY - y) / centerY) * 3;
+                const rotateY = ((x - centerX) / centerX) * 3;
+
+                card.style.transform =
+                    `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
+
+            });
+
+            card.addEventListener("pointerleave", () => {
+
+                card.style.transform = "";
+
+            });
+
+        });
+
+    }
+
+
+    /* ======================================
+       8. BUTTON RIPPLE EFFECT
+    ====================================== */
+
+    document.querySelectorAll(
+        ".button, .chip, .theme-switch"
+    ).forEach(button => {
+
+        button.addEventListener("click", event => {
+
+            if (reduceMotion) return;
+
+            const rect = button.getBoundingClientRect();
+
+            const ripple = document.createElement("span");
+
+            ripple.className = "button-ripple";
+
+            ripple.style.left =
+                `${event.clientX - rect.left}px`;
+
+            ripple.style.top =
+                `${event.clientY - rect.top}px`;
+
+            button.appendChild(ripple);
+
+            ripple.addEventListener("animationend", () => {
+                ripple.remove();
+            }, { once: true });
+
+        });
+
     });
+
+
+    /* ======================================
+       9. IMAGE ERROR HANDLING
+    ====================================== */
+
+    document.querySelectorAll("img").forEach(img => {
+
+        img.addEventListener("error", () => {
+
+            img.classList.add("image-unavailable");
+
+            img.alt = img.alt || "Image unavailable";
+
+        }, { once: true });
+
+    });
+
+
+    /* ======================================
+       10. DELETE CONFIRMATION
+    ====================================== */
+
+    document.querySelectorAll(
+        "form button.button-danger"
+    ).forEach(button => {
+
+        const form = button.closest("form");
+
+        form?.addEventListener("submit", event => {
+
+            const confirmed = window.confirm(
+                "Are you sure you want to continue?"
+            );
+
+            if (!confirmed) {
+                event.preventDefault();
+            }
+
+        });
+
+    });
+
+
+    /* ======================================
+       11. ACTIVE NAVIGATION
+    ====================================== */
+
+    const currentPath = window.location.pathname;
+
+    document.querySelectorAll(
+        ".main-nav a"
+    ).forEach(link => {
+
+        const linkPath = new URL(
+            link.href,
+            window.location.origin
+        ).pathname;
+
+        if (
+            linkPath === currentPath &&
+            currentPath !== "/"
+        ) {
+
+            link.classList.add("active");
+
+            link.setAttribute("aria-current", "page");
+
+        }
+
+    });
+
+
+    /* ======================================
+       12. COUNTER ANIMATION
+    ====================================== */
+
+    const counters = document.querySelectorAll(
+        "[data-counter]"
+    );
+
+    function animateCounter(element) {
+
+        const target = Number(element.dataset.counter);
+
+        if (!Number.isFinite(target)) return;
+
+        const duration = 1400;
+        const startTime = performance.now();
+
+        function update(now) {
+
+            const progress = Math.min(
+                (now - startTime) / duration,
+                1
+            );
+
+            const eased =
+                1 - Math.pow(1 - progress, 4);
+
+            const current = Math.floor(
+                target * eased
+            );
+
+            element.textContent =
+                current.toLocaleString();
+
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            } else {
+                element.textContent =
+                    target.toLocaleString();
+            }
+
+        }
+
+        requestAnimationFrame(update);
+
+    }
+
+    if ("IntersectionObserver" in window && !reduceMotion) {
+
+        const counterObserver = new IntersectionObserver(
+            (entries, observer) => {
+
+                entries.forEach(entry => {
+
+                    if (entry.isIntersecting) {
+
+                        animateCounter(entry.target);
+
+                        observer.unobserve(entry.target);
+
+                    }
+
+                });
+
+            },
+            { threshold: 0.5 }
+        );
+
+        counters.forEach(counter => {
+            counterObserver.observe(counter);
+        });
+
+    } else {
+
+        counters.forEach(counter => {
+            counter.textContent =
+                Number(counter.dataset.counter).toLocaleString();
+        });
+
+    }
+
+
+    /* ======================================
+       13. SMOOTH ANCHOR NAVIGATION
+    ====================================== */
+
+    document.querySelectorAll(
+        'a[href^="#"]'
+    ).forEach(link => {
+
+        link.addEventListener("click", event => {
+
+            const targetId = link.getAttribute("href");
+
+            if (!targetId || targetId === "#") return;
+
+            const target = document.querySelector(targetId);
+
+            if (!target) return;
+
+            event.preventDefault();
+
+            target.scrollIntoView({
+                behavior: reduceMotion ? "auto" : "smooth",
+                block: "start"
+            });
+
+        });
+
+    });
+
+
+    /* ======================================
+       14. KEYBOARD ACCESSIBILITY
+    ====================================== */
+
+    document.addEventListener("keydown", event => {
+
+        if (event.key === "Escape") {
+            closeMenu();
+        }
+
+    });
+
+
+    /* ======================================
+       15. PAGE READY
+    ====================================== */
+
+    body.classList.add("page-loaded");
+
+    console.log(
+        "%c EduNova 2.0 ",
+        "background:#7557f5;color:white;padding:10px 18px;border-radius:8px;font-weight:bold;"
+    );
+
+    console.log(
+        "Welcome to EduNova — Learn Without Limits!"
+    );
 
 });

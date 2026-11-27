@@ -14,6 +14,8 @@ from .models import *
 
 
 
+
+
 def course_list(request):
     search = request.GET.get("search", "")
     courses = (Course.objects.filter(
@@ -71,6 +73,7 @@ def course_create(request):
         messages.success(request, "Course created")
         return redirect("course_list")
     return render(request, "course_form.html", {"categories": CourseCategory.objects.all()})
+
 
 
 
@@ -139,7 +142,7 @@ def my_courses(request):
 @require_POST
 def comment_create(request, pk):
     CourseComment.objects.create(course_id=pk, user=request.user, text=request.POST["text"])
-    messages.success(request, "Comment sent, waiting for approval")
+    messages.success(request, "Comment sent waiting for approval")
     return redirect("course_detail", pk=pk)
 
 
@@ -216,6 +219,11 @@ def user_logout(request):
 
 
 
+
+
+
+
+
 def get_youtube_embed_url(url):
     if not url:
         return ""
@@ -243,17 +251,9 @@ def get_youtube_embed_url(url):
 
     if len(video_id) != 11:
         return ""
-
-    if not all(
-        char.isalnum() or char in "_-"
-        for char in video_id
-    ):
+    if not all(char.isalnum() or char in "_-"for char in video_id):
         return ""
-
-    return (
-        f"https://www.youtube-nocookie.com/embed/"
-        f"{video_id}"
-    )
+    return (f"https://www.youtube-nocookie.com/embed/"f"{video_id}")
 
 
 
@@ -264,109 +264,44 @@ def get_youtube_embed_url(url):
 
 @login_required
 def lesson_detail(request, pk):
-    lesson = get_object_or_404(
-        CourseLesson.objects.select_related("course"),
-        pk=pk
-    )
-
-    if not (
-        lesson.course.students.filter(pk=request.user.pk).exists()
-        or request.user.is_staff
-    ):
+    lesson = get_object_or_404(CourseLesson.objects.select_related("course"),pk=pk)
+    if not (lesson.course.students.filter(pk=request.user.pk).exists()or request.user.is_staff):
         messages.warning(request, "First join this course.")
         return redirect("course_detail", pk=lesson.course.pk)
-
     error = None
     success = False
     success_points = 0
-
     questions = lesson.questions.all().order_by("order")
-
     if request.method == "POST":
         question_id = request.POST.get("question_id")
         answer = request.POST.get("answer", "").strip()
-
-        question = get_object_or_404(
-            LessonQuestion,
-            pk=question_id,
-            lesson=lesson
-        )
-
-        already_answered = QuestionProgress.objects.filter(
-            user=request.user,
-            question=question
-        ).exists()
+        question = get_object_or_404(LessonQuestion,pk=question_id,lesson=lesson)
+        already_answered = QuestionProgress.objects.filter(user=request.user,question=question).exists()
         if already_answered:
             error = "You have already answered this question."
         elif not answer:
             error = "Please enter your answer."
         elif answer.casefold() == question.correct_answer.strip().casefold():
             QuestionProgress.objects.create(user=request.user,question=question,points_earned=question.points)
-
             success = True
             success_points = question.points
             total_questions = questions.count()
-
-            answered_questions = QuestionProgress.objects.filter(
-                user=request.user,
-                question__lesson=lesson
-            ).count()
-
+            answered_questions = QuestionProgress.objects.filter(user=request.user,question__lesson=lesson).count()
             if total_questions > 0 and answered_questions == total_questions:
-                total_lesson_points = QuestionProgress.objects.filter(
-                    user=request.user,
-                    question__lesson=lesson
-                ).aggregate(total=Count("id"))["total"]
-
+                total_lesson_points = QuestionProgress.objects.filter(user=request.user,question__lesson=lesson).aggregate(total=Count("id"))["total"]
                 total_lesson_points = sum(
-                    QuestionProgress.objects.filter(
-                        user=request.user,
-                        question__lesson=lesson
-                    ).values_list("points_earned", flat=True)
-                )
-
-                LessonProgress.objects.update_or_create(
-                    user=request.user,
-                    lesson=lesson,
-                    defaults={
-                        "is_completed": True,
-                        "points_earned": total_lesson_points
-                    }
-                )
-
+                    QuestionProgress.objects.filter(user=request.user,question__lesson=lesson).values_list("points_earned", flat=True))
+                LessonProgress.objects.update_or_create(user=request.user,lesson=lesson,defaults={"is_completed": True,"points_earned": total_lesson_points})
         else:
             error = "Incorrect answer. Try again!"
-
     question_items = []
-
     for question in questions:
-        question_progress = QuestionProgress.objects.filter(
-            user=request.user,
-            question=question
-        ).first()
-
-        question_items.append({
-            "question": question,
-            "progress": question_progress
-        })
-
-    lesson_progress = LessonProgress.objects.filter(
-        user=request.user,
-        lesson=lesson,
-        is_completed=True
-    ).first()
-
+        question_progress = QuestionProgress.objects.filter(user=request.user,question=question).first()
+        question_items.append({ "question": question, "progress": question_progress})
+    lesson_progress = LessonProgress.objects.filter(user=request.user,lesson=lesson,is_completed=True).first()
     total_points = sum(
-        request.user.question_progress.values_list(
-            "points_earned",
-            flat=True
-        )
-    )
-
-    return render(
-        request,
-        "lesson_detail.html",
-        {
+        request.user.question_progress.values_list("points_earned",flat=True))
+    return render( request,"lesson_detail.html",{
             "lesson": lesson,
             "course": lesson.course,
             "embed_url": get_youtube_embed_url(lesson.youtube_url),

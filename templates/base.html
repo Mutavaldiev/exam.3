@@ -3,143 +3,295 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="EduNova — learn new skills, build your future.">
-  <title>{% block title %}EduNova | Learn Without Limits{% endblock %}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <meta name="theme-color" content="#090b18">
+    <meta name="description" content="EduNova — Learn Without Limits. Discover courses, master skills and build your future.">
 
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>{% block title %}EduNova | Learn Without Limits{% endblock %}</title>
 
-  <link rel="stylesheet" href="{% static 'style.css' %}">
-  {% block extra_css %}{% endblock %}
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+
+    {% block extra_css %}{% endblock %}
 </head>
 
 <body>
 
-  <div class="page-glow page-glow-one"></div>
-  <div class="page-glow page-glow-two"></div>
-
-  <header class="site-header">
-
-    <a class="brand" href="/">
-      <span class="brand-mark">E</span>
-      <span>edu<span class="brand-accent">nova</span></span>
-    </a>
-
-    <button class="menu-toggle" type="button"
-            aria-label="Open navigation"
-            aria-expanded="false"
-            data-menu-toggle>
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-
-    <nav class="main-nav" data-menu>
-      <a href="/">Explore</a>
-      <a href="/#categories">Categories</a>
-      <a href="/#about">About</a>
-
-      {% if user.is_authenticated %}
-        <a href="/my-courses/">My learning</a>
-      {% endif %}
-    </nav>
-
-    <div class="header-actions">
-
-      <!-- Night Mode Button -->
-      <button class="theme-switch" id="themeToggle" type="button">
-        <span class="theme-switch-icon" id="themeIcon">☾</span>
-        <span id="themeText">Night mode</span>  
-      </button>
-
-      {% if user.is_authenticated %}
-
-        <span class="welcome-user">Hi, {{ user.username }}</span>
-
-        <form method="POST" action="{% url 'logout' %}">
-          {% csrf_token %}
-          <button type="submit" class="button button-small button-outline">
-            Log out
-          </button>
-        </form>
-
-      {% else %}
-
-        <a class="login-link" href="/login/">Log in</a>
-        <a class="button button-small" href="/register/">
-          Get started <span>↗</span>
-        </a>
-
-      {% endif %}
-
+    <!-- Background Effects -->
+    <div class="page-background">
+        <div class="background-orb orb-one"></div>
+        <div class="background-orb orb-two"></div>
+        <div class="background-orb orb-three"></div>
+        <div class="background-grid"></div>
     </div>
-  </header>
 
-  <main>
-    {% block content %}{% endblock %}
-  </main>
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scrollProgress"></div>
 
-  <footer class="site-footer">
+    <!-- HEADER -->
+    <header class="site-header" id="siteHeader">
 
-    <div class="footer-main">
+        <a href="/" class="brand">
+            <span class="brand-mark">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </span>
 
-      <div>
-        <a class="brand footer-brand" href="/">
-          <span class="brand-mark">E</span>
-          <span>edu<span class="brand-accent">nova</span></span>
+            <span class="brand-name">
+                edu<span class="brand-accent">nova</span>
+                <small>LEARN WITHOUT LIMITS</small>
+            </span>
         </a>
 
-        <p>Small steps today. Extraordinary possibilities tomorrow.</p>
-      </div>
+        <!-- Mobile Menu -->
+        <button class="menu-toggle"
+                id="menuToggle"
+                type="button"
+                aria-label="Open navigation"
+                aria-expanded="false"
+                aria-controls="mainMenu">
 
-      <div class="footer-links">
-        <a href="/">Explore courses</a>
-        <a href="/about/">About us</a>
-        <a href="/contact/">Contact</a>
-      </div>
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
 
-      <div class="footer-social">
+        <!-- Navigation -->
+        <nav class="main-nav" id="mainMenu" data-menu>
 
-        <span>Learn boldly. Grow endlessly.</span>
+            <a href="/" class="nav-link">
+                <i class="fa-solid fa-house"></i>
+                Explore
+            </a>
 
-        <div class="social-dots">
+            <a href="/#categories" class="nav-link">
+                <i class="fa-solid fa-layer-group"></i>
+                Categories
+            </a>
 
-          <a href="https://www.instagram.com/footballtj.01/"
-             target="_blank"
-             rel="noopener noreferrer"
-             aria-label="Instagram"
-             title="Instagram">
-            <i>◎</i>
-          </a>
+      
 
-          <a href="https://t.me/+992002667720"
-             target="_blank"
-             rel="noopener noreferrer"
-             aria-label="Telegram"
-             title="Telegram">
-            <i>➤</i>
-          </a>
+            {% if user.is_authenticated %}
+                <a href="/my-courses/" class="nav-link">
+                    <i class="fa-solid fa-book-open"></i>
+                    My Learning
+                </a>
+            {% endif %}
+
+        </nav>
+
+        <!-- Header Actions -->
+        <div class="header-actions">
+
+            <button class="theme-switch"
+                    id="themeToggle"
+                    type="button"
+                    aria-label="Change theme"
+                    aria-pressed="false">
+
+                <i class="fa-solid fa-moon" id="themeIcon"></i>
+                <span id="themeText">Dark mode</span>
+
+            </button>
+
+            {% if user.is_authenticated %}
+
+                <div class="user-menu">
+
+                    <div class="user-avatar">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+
+                    <span class="welcome-user">
+                        Hi, {{ user.username }}
+                    </span>
+
+                </div>
+
+                <form method="POST" action="{% url 'logout' %}">
+                    {% csrf_token %}
+
+                    <button type="submit"
+                            class="button button-small button-outline">
+
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        Log out
+
+                    </button>
+                </form>
+
+            {% else %}
+
+                <a href="/login/" class="login-link">
+                    Log in
+                </a>
+
+                <a href="/register/" class="button button-small">
+                    Get started
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+
+            {% endif %}
 
         </div>
 
-      </div>
+    </header>
 
-    </div>
 
-    <div class="footer-bottom">
-      <span>© {% now "Y" %} EduNova. All rights reserved.</span>
-      <span>Designed for curious minds ✦</span>
-    </div>
+    <!-- MAIN CONTENT -->
+    <main id="mainContent">
 
-  </footer>
+        {% block content %}
+        {% endblock %}
 
-  <script src="{% static 'js/main.js' %}" defer></script>
+    </main>
 
-  {% block extra_js %}{% endblock %}
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+
+        <div class="footer-main">
+
+            <!-- Brand -->
+            <div class="footer-brand-area">
+
+                <a href="/" class="brand footer-brand">
+
+                    <span class="brand-mark">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </span>
+
+                    <span class="brand-name">
+                        edu<span class="brand-accent">nova</span>
+                    </span>
+
+                </a>
+
+                <p>
+                    Learn something new every day.
+                    Build your future with EduNova.
+                </p>
+
+                <div class="footer-social">
+
+                    <a href="https://www.instagram.com/footballtj.01/"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       aria-label="Instagram">
+
+                        <i class="fa-brands fa-instagram"></i>
+
+                    </a>
+
+                    <a href="https://t.me/+992002667720"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       aria-label="Telegram">
+
+                        <i class="fa-brands fa-telegram"></i>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- Quick Links -->
+            <div class="footer-column">
+
+                <h3>Explore</h3>
+
+                <a href="/">Home</a>
+                <a href="/#categories">Categories</a>
+                <a href="/my-courses/">My courses</a>
+                <a href="/about/">About us</a>
+
+            </div>
+
+
+            <!-- Support -->
+            <div class="footer-column">
+
+                <h3>Support</h3>
+
+                <a href="/contact/">Contact</a>
+                <a href="/login/">Login</a>
+                <a href="/register/">Create account</a>
+
+            </div>
+
+
+            <!-- Footer CTA -->
+            <div class="footer-column footer-cta">
+
+                <span class="footer-badge">
+                    <i class="fa-solid fa-bolt"></i>
+                    YOUR FUTURE STARTS HERE
+                </span>
+
+                <h3>Never stop learning.</h3>
+
+                <p>
+                    Explore new skills and discover your potential.
+                </p>
+
+                <a href="/" class="footer-explore">
+                    Explore courses
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <span>
+                © {% now "Y" %} EduNova. All rights reserved.
+            </span>
+
+            <span>
+                Made for curious minds
+                <i class="fa-solid fa-heart"></i>
+            </span>
+
+        </div>
+
+    </footer>
+
+
+    <!-- Back To Top -->
+    <button id="backToTop"
+            class="back-to-top"
+            type="button"
+            aria-label="Back to top">
+
+        <i class="fa-solid fa-arrow-up"></i>
+
+    </button>
+
+
+    <!-- Notification Area -->
+    <div id="toastContainer" class="toast-container"></div>
+
+
+    <!-- JavaScript -->
+    <script src="{% static 'js/main.js' %}" defer></script>
+
+    {% block extra_js %}{% endblock %}
 
 </body>
 </html>
