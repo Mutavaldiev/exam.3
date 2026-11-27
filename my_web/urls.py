@@ -15,5 +15,6 @@ urlpatterns = [
     path("confirm-email/", views.confirm_email, name="confirm_email"),
     path("login/", views.user_login, name="login"),
     path("logout/", views.user_logout, name="logout"),
+    path( "lesson/<int:pk>/", views.lesson_detail, name="lesson_detail"),
 
 ]

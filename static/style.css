@@ -13,3 +13,42 @@
 @media(max-width:900px){.main-nav{gap:17px}.hero{gap:25px}.hero-art{min-height:360px}.hero-image-frame{height:330px}.hero-orbit{width:360px;height:360px}.course-grid{grid-template-columns:repeat(2,1fr)}.auth-layout,.form-page{gap:35px}.detail-content-grid{grid-template-columns:1fr 270px;gap:30px}.feature-banner{padding:40px}.contact-layout{gap:35px}}
 @media(max-width:700px){.section-wrap,.site-header{width:min(100% - 32px,560px)}.site-header{height:72px}.menu-toggle{display:grid;gap:5px;margin-left:auto}.menu-toggle span{width:22px;height:2px;background:var(--ink);border-radius:2px}.main-nav{display:none;position:absolute;top:65px;left:0;right:0;padding:18px;background:white;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);flex-direction:column;gap:15px}.main-nav.is-open{display:flex}.header-actions{gap:10px}.header-actions .login-link,.welcome-user{display:none}.hero,.detail-hero,.auth-layout,.form-page,.about-grid,.contact-layout{grid-template-columns:1fr}.hero{padding-top:35px;gap:20px}.hero-art{min-height:340px}.hero-image-frame{width:78%;height:310px}.hero-orbit{width:320px;height:320px}.floating-card-top{right:0;top:30px}.floating-card-bottom{left:0;bottom:25px}.stats-strip{grid-template-columns:repeat(2,1fr);gap:15px;padding:18px}.stats-strip div{border:0;padding:5px}.section-block{padding:55px 0}.section-heading{align-items:start;flex-direction:column}.course-toolbar{align-items:stretch}.search-box{width:100%}.course-grid{grid-template-columns:1fr}.course-image{height:220px}.feature-banner{grid-template-columns:1fr;padding:32px 25px;margin-bottom:55px}.feature-banner-art{height:190px}.page-hero{padding-top:50px}.detail-hero{padding-top:30px;gap:25px}.detail-image{height:260px}.detail-content-grid{grid-template-columns:1fr;padding-bottom:55px}.sidebar-card{order:-1}.form-page,.auth-layout{padding-top:35px;padding-bottom:55px}.form-intro img{height:180px}.auth-visual{height:330px;order:2}.auth-panel{order:1}.auth-visual-caption{left:22px;bottom:18px}.auth-visual-caption h2{font-size:2rem}.dashboard-tiles{grid-template-columns:1fr}.profile-layout{grid-template-columns:1fr;padding-bottom:55px}.about-grid{gap:28px;padding-bottom:55px}.about-image{height:260px}.contact-layout{padding-bottom:55px}.footer-main{grid-template-columns:1fr 1fr}.footer-social{grid-column:1/-1}.footer-bottom{flex-direction:column}.confirm-card{padding:30px 22px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.reveal{opacity:1;transform:none}}
+
+
+
+
+.footer-social .social-dots {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.footer-social .social-dots a {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 23px;
+    transition: 0.3s ease;
+}
+
+.footer-social .social-dots a:hover {
+    background: #7c5cff;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(124, 92, 255, 0.35);
+}
+
+.footer-social .social-dots a:first-child:hover {
+    background: #E1306C;
+}
+
+.footer-social .social-dots a:last-child:hover {
+    background: #229ED9;
+}

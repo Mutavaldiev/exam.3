@@ -1,9 +1,935 @@
+
 {% extends "base.html" %}
+
 {% block title %}{{ course.title }} | EduNova{% endblock %}
+
 {% block content %}
-<section class="detail-hero section-wrap"><div class="detail-copy"><a class="back-link" href="/">← Back to courses</a><span class="eyebrow">YOUR LEARNING JOURNEY</span><h1>{{ course.title }}</h1><p class="detail-description">{{ course.description }}</p><div class="detail-pills"><span>✦ Expert-led content</span><span>◷ Learn at your pace</span><span>⌁ Practical skills</span></div><div class="hero-buttons">{% if user.is_authenticated %}<form method="post" action="{% url 'course_join' course.pk %}">{% csrf_token %}<button class="button" type="submit">Join this course <span>↗</span></button></form>{% else %}<a class="button" href="/login/">Log in to join <span>↗</span></a>{% endif %}</div></div><div class="detail-image">{% if course.photo %}<img src="{{ course.photo.url }}" alt="{{ course.title }}">{% else %}<img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=85" alt="Online learning">{% endif %}<span class="image-corner-label">EDUNOVA CLASS</span></div></section>
-<section class="section-wrap detail-content-grid"><article class="detail-main"><span class="eyebrow">ABOUT THIS COURSE</span><h2>What you'll discover</h2><p>{{ course.description }}</p><div class="detail-note"><span>✦</span><div><strong>Learn by doing</strong><p>Turn new ideas into useful skills through focused, practical learning.</p></div></div>
-{% if comments %}<div class="comments-section"><h2>Community thoughts</h2>{% for comment in comments %}<div class="comment-card"><div class="comment-avatar">{{ comment.user.username|slice:":1"|upper }}</div><div><strong>{{ comment.user.username }}</strong><p>{{ comment.text }}</p></div></div>{% endfor %}</div>{% endif %}
-{% if user.is_authenticated %}<form class="form-card comment-form" method="post" action="{% url 'comment_create' course.pk %}">{% csrf_token %}<h3>Share your thoughts</h3><textarea name="text" rows="4" placeholder="Write a thoughtful comment..." required></textarea><button class="button" type="submit">Post comment ↗</button></form>{% endif %}
-</article><aside class="detail-sidebar"><div class="sidebar-card"><span class="eyebrow">COURSE SNAPSHOT</span><div class="snapshot-row"><span>Format</span><strong>Online learning</strong></div><div class="snapshot-row"><span>Access</span><strong>Flexible</strong></div><div class="snapshot-row"><span>Community</span><strong>Learn together</strong></div><a href="#top" class="button button-full">Start learning ↗</a></div></aside></section>
+
+<style>
+/* ===== COURSE DETAIL PAGE ===== */
+
+.course-page {
+    max-width: 1200px;
+    margin: auto;
+    padding: 45px 24px 80px;
+}
+
+.course-hero {
+    display: grid;
+    grid-template-columns: 1.1fr .9fr;
+    gap: 55px;
+    align-items: center;
+    padding: 35px 0 65px;
+}
+
+.back-link {
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+    opacity: .65;
+    margin-bottom: 35px;
+    transition: .25s;
+}
+
+.back-link:hover {
+    opacity: 1;
+    transform: translateX(-4px);
+}
+
+.eyebrow {
+    color: #9675ff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.course-title {
+    font-family: 'Manrope', sans-serif;
+    font-size: clamp(35px, 5vw, 58px);
+    line-height: 1.12;
+    margin: 18px 0;
+    letter-spacing: -2px;
+}
+
+.course-description {
+    font-size: 16px;
+    line-height: 1.9;
+    opacity: .7;
+    max-width: 550px;
+}
+
+.course-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 25px 0;
+}
+
+.course-tag {
+    padding: 10px 15px;
+    border-radius: 30px;
+    background: rgba(140, 110, 255, .10);
+    border: 1px solid rgba(140, 110, 255, .15);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.course-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 30px;
+}
+
+.course-actions .button {
+    cursor: pointer;
+}
+
+.course-image {
+    position: relative;
+    height: 390px;
+    border-radius: 28px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #7755ed, #19152c);
+    box-shadow: 0 25px 70px rgba(80, 50, 160, .17);
+}
+
+.course-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .7s;
+}
+
+.course-image:hover img {
+    transform: scale(1.06);
+}
+
+.image-label {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    padding: 11px 17px;
+    border-radius: 12px;
+    color: white;
+    background: rgba(15, 12, 30, .75);
+    backdrop-filter: blur(12px);
+    font-size: 11px;
+    letter-spacing: 1px;
+    font-weight: 800;
+}
+
+/* ===== GENERAL CONTENT ===== */
+
+.course-content {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 35px;
+    align-items: start;
+}
+
+.course-main,
+.course-sidebar {
+    min-width: 0;
+}
+
+.content-card,
+.sidebar-card {
+    padding: 28px;
+    border-radius: 22px;
+    background: rgba(130, 110, 190, .07);
+    border: 1px solid rgba(140, 120, 200, .14);
+}
+
+.content-card h2 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 25px;
+    margin: 12px 0;
+}
+
+.content-card p {
+    line-height: 1.9;
+    opacity: .75;
+}
+
+.learning-note {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 20px;
+    margin-top: 25px;
+    border-radius: 15px;
+    background: rgba(130, 90, 255, .09);
+}
+
+.note-icon {
+    font-size: 25px;
+}
+
+.learning-note p {
+    margin: 7px 0 0;
+    font-size: 14px;
+}
+
+/* ===== COURSE LESSONS ===== */
+
+.lessons-section {
+    margin-top: 35px;
+}
+
+.lessons-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.lessons-header h2 {
+    font-size: 25px;
+    font-family: 'Manrope', sans-serif;
+}
+
+.lesson-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 20px;
+    margin-bottom: 12px;
+    border-radius: 16px;
+    text-decoration: none;
+    color: inherit;
+    background: rgba(130, 110, 190, .07);
+    border: 1px solid rgba(140, 120, 200, .13);
+    transition: .3s;
+}
+
+.lesson-item:hover {
+    transform: translateY(-3px);
+    border-color: rgba(145, 110, 255, .5);
+    background: rgba(130, 90, 255, .11);
+}
+
+.lesson-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.lesson-number {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 13px;
+    background: rgba(140, 110, 255, .15);
+    color: #a58aff;
+    font-weight: 800;
+}
+
+.lesson-info h3 {
+    font-size: 15px;
+    margin: 0 0 6px;
+}
+
+.lesson-info span {
+    font-size: 11px;
+    opacity: .55;
+}
+
+.lesson-arrow {
+    font-size: 22px;
+    color: #9875ff;
+}
+
+/* ===== SIDEBAR ===== */
+
+.sidebar-card {
+    position: sticky;
+    top: 25px;
+}
+
+.sidebar-title {
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    font-weight: 800;
+    color: #9875ff;
+    margin-bottom: 20px;
+}
+
+.snapshot-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(130, 110, 190, .15);
+    font-size: 13px;
+}
+
+.snapshot-row span {
+    opacity: .6;
+}
+
+.snapshot-row strong {
+    text-align: right;
+}
+
+.sidebar-card .button {
+    width: 100%;
+    margin-top: 22px;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.course-price {
+    font-size: 27px;
+    font-weight: 800;
+    margin: 15px 0;
+}
+
+/* ===== COMMENTS ===== */
+
+.comments-section {
+    margin-top: 40px;
+}
+
+.comments-section h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.comment-card {
+    display: flex;
+    gap: 15px;
+    padding: 20px;
+    margin-bottom: 12px;
+    border-radius: 15px;
+    background: rgba(130, 110, 190, .07);
+}
+
+.comment-avatar {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7654ed, #b05cfa);
+    color: white;
+    font-weight: 800;
+}
+
+.comment-card p {
+    margin: 7px 0 0;
+    font-size: 14px;
+}
+
+.comment-form {
+    margin-top: 25px;
+}
+
+.comment-form h3 {
+    margin-top: 0;
+}
+
+.comment-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(140, 120, 200, .25);
+    background: rgba(130, 110, 190, .07);
+    color: inherit;
+    font: inherit;
+    resize: vertical;
+    margin: 12px 0;
+}
+
+.comment-form textarea:focus {
+    outline: none;
+    border-color: #9875ff;
+}
+
+/* ===== EMPTY STATE ===== */
+
+.empty-lessons {
+    text-align: center;
+    padding: 40px 20px;
+    border-radius: 18px;
+    background: rgba(130, 110, 190, .07);
+}
+
+.empty-lessons .empty-icon {
+    font-size: 40px;
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media(max-width: 900px) {
+    .course-hero {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .course-image {
+        height: 330px;
+    }
+
+    .course-content {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar-card {
+        position: static;
+    }
+}
+
+@media(max-width: 550px) {
+    .course-page {
+        padding: 25px 16px 55px;
+    }
+
+    .course-title {
+        font-size: 36px;
+    }
+
+    .course-image {
+        height: 240px;
+        border-radius: 20px;
+    }
+
+    .content-card,
+    .sidebar-card {
+        padding: 20px;
+    }
+
+    .lesson-item {
+        padding: 15px;
+    }
+
+    .course-actions {
+        flex-direction: column;
+    }
+
+    .course-actions .button {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+}
+</style>
+
+
+<div class="course-page">
+
+    <!-- COURSE HERO -->
+
+    <section class="course-hero">
+
+        <div class="course-copy">
+
+            <a href="{% url 'course_list' %}" class="back-link">
+                ← Back to courses
+            </a>
+
+            <div class="eyebrow">
+                EDUNOVA LEARNING EXPERIENCE
+            </div>
+
+            <h1 class="course-title">
+                {{ course.title }}
+            </h1>
+
+            <p class="course-description">
+                {{ course.description }}
+            </p>
+
+            <div class="course-tags">
+
+                <span class="course-tag">
+                    ✦ {{ course.category.name }}
+                </span>
+
+                <span class="course-tag">
+                    ◈ {{ course.get_level_display }}
+                </span>
+
+                <span class="course-tag">
+                    👨‍🏫 {{ course.mentor.username }}
+                </span>
+
+            </div>
+
+            <div class="course-actions">
+
+                {% if user.is_authenticated %}
+
+                    {% if user in course.students.all %}
+
+                        {% with first_lesson=course.lessons.first %}
+
+                            {% if first_lesson %}
+
+                                <a
+                                    href="{% url 'lesson_detail' first_lesson.pk %}"
+                                    class="button"
+                                >
+                                    Start learning <span>↗</span>
+                                </a>
+
+                            {% else %}
+
+                                <span class="button">
+                                    Lessons coming soon
+                                </span>
+
+                            {% endif %}
+
+                        {% endwith %}
+
+                    {% else %}
+
+                        <form
+                            method="post"
+                            action="{% url 'course_join' course.pk %}"
+                        >
+                            {% csrf_token %}
+
+                            <button class="button" type="submit">
+                                Join this course <span>↗</span>
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+                {% else %}
+
+                    <a href="{% url 'login' %}" class="button">
+                        Login to start <span>↗</span>
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <div class="course-image">
+
+            {% if course.photo %}
+
+                <img
+                    src="{{ course.photo.url }}"
+                    alt="{{ course.title }}"
+                >
+
+            {% else %}
+
+                <img
+                    src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=85"
+                    alt="Online learning"
+                >
+
+            {% endif %}
+
+            <div class="image-label">
+                EDUNOVA CLASS ✦
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- COURSE CONTENT -->
+
+    <section class="course-content">
+
+        <div class="course-main">
+
+            <!-- ABOUT COURSE -->
+
+            <article class="content-card">
+
+                <div class="eyebrow">
+                    ABOUT THIS COURSE
+                </div>
+
+                <h2>
+                    What you'll discover
+                </h2>
+
+                <p>
+                    {{ course.description|linebreaksbr }}
+                </p>
+
+                <div class="learning-note">
+
+                    <div class="note-icon">🚀</div>
+
+                    <div>
+                        <strong>Learn by doing</strong>
+
+                        <p>
+                            Watch educational videos, practice your
+                            knowledge and complete tasks to earn points.
+                        </p>
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            <!-- COURSE LESSONS -->
+
+            <section class="lessons-section">
+
+                <div class="lessons-header">
+
+                    <div>
+                        <div class="eyebrow">
+                            YOUR LEARNING PATH
+                        </div>
+
+                        <h2>Course curriculum</h2>
+                    </div>
+
+                    <span class="course-tag">
+                        {{ course.lessons.count }} Lessons
+                    </span>
+
+                </div>
+
+
+                {% for lesson in course.lessons.all %}
+
+                    {% if user.is_authenticated %}
+
+                        {% if user in course.students.all %}
+
+                            <a
+                                href="{% url 'lesson_detail' lesson.pk %}"
+                                class="lesson-item"
+                            >
+
+                                <div class="lesson-left">
+
+                                    <div class="lesson-number">
+                                        {{ lesson.day }}
+                                    </div>
+
+                                    <div class="lesson-info">
+
+                                        <h3>
+                                            {{ lesson.title }}
+                                        </h3>
+
+                                        <span>
+                                            VIDEO LESSON · PRACTICE TASK
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="lesson-arrow">
+                                    →
+                                </div>
+
+                            </a>
+
+                        {% else %}
+
+                            <div class="lesson-item">
+
+                                <div class="lesson-left">
+
+                                    <div class="lesson-number">
+                                        {{ lesson.day }}
+                                    </div>
+
+                                    <div class="lesson-info">
+
+                                        <h3>
+                                            {{ lesson.title }}
+                                        </h3>
+
+                                        <span>
+                                            JOIN THE COURSE TO ACCESS
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                                <span class="lesson-arrow">🔒</span>
+
+                            </div>
+
+                        {% endif %}
+
+                    {% else %}
+
+                        <div class="lesson-item">
+
+                            <div class="lesson-left">
+
+                                <div class="lesson-number">
+                                    {{ lesson.day }}
+                                </div>
+
+                                <div class="lesson-info">
+
+                                    <h3>{{ lesson.title }}</h3>
+
+                                    <span>
+                                        LOGIN TO ACCESS THIS LESSON
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <span class="lesson-arrow">🔒</span>
+
+                        </div>
+
+                    {% endif %}
+
+                {% empty %}
+
+                    <div class="empty-lessons">
+
+                        <div class="empty-icon">📚</div>
+
+                        <h3>Lessons coming soon</h3>
+
+                        <p>
+                            Our mentor is preparing educational
+                            content for this course.
+                        </p>
+
+                    </div>
+
+                {% endfor %}
+
+            </section>
+
+
+            <!-- COMMENTS -->
+
+            <section class="comments-section">
+
+                <h2>Community thoughts 💬</h2>
+
+                {% for comment in comments %}
+
+                    <div class="comment-card">
+
+                        <div class="comment-avatar">
+                            {{ comment.user.username|slice:":1"|upper }}
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                {{ comment.user.username }}
+                            </strong>
+
+                            <p>
+                                {{ comment.text|linebreaksbr }}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                {% empty %}
+
+                    <div class="empty-lessons">
+                        <p>
+                            No comments yet. Be the first to share
+                            your thoughts!
+                        </p>
+                    </div>
+
+                {% endfor %}
+
+                {% if user.is_authenticated %}
+
+                    <form
+                        class="content-card comment-form"
+                        method="post"
+                        action="{% url 'comment_create' course.pk %}"
+                    >
+
+                        {% csrf_token %}
+
+                        <h3>Share your thoughts</h3>
+
+                        <textarea
+                            name="text"
+                            rows="4"
+                            placeholder="Write a thoughtful comment..."
+                            required
+                        ></textarea>
+
+                        <button class="button" type="submit">
+                            Post comment ↗
+                        </button>
+
+                    </form>
+
+                {% endif %}
+
+            </section>
+
+        </div>
+
+
+        <!-- SIDEBAR -->
+
+        <aside class="course-sidebar">
+
+            <div class="sidebar-card">
+
+                <div class="sidebar-title">
+                    COURSE SNAPSHOT
+                </div>
+
+                <div class="course-price">
+                    {% if course.price == 0 %}
+                        Free
+                    {% else %}
+                        {{ course.price }}
+                    {% endif %}
+                </div>
+
+                <div class="snapshot-row">
+
+                    <span>Category</span>
+
+                    <strong>
+                        {{ course.category.name }}
+                    </strong>
+
+                </div>
+
+                <div class="snapshot-row">
+
+                    <span>Level</span>
+
+                    <strong>
+                        {{ course.get_level_display }}
+                    </strong>
+
+                </div>
+
+                <div class="snapshot-row">
+
+                    <span>Mentor</span>
+
+                    <strong>
+                        {{ course.mentor.username }}
+                    </strong>
+
+                </div>
+
+                <div class="snapshot-row">
+
+                    <span>Students</span>
+
+                    <strong>
+                        {{ students_total }}
+                    </strong>
+
+                </div>
+
+                <div class="snapshot-row">
+
+                    <span>Lessons</span>
+
+                    <strong>
+                        {{ course.lessons.count }}
+                    </strong>
+
+                </div>
+
+                <div class="snapshot-row">
+
+                    <span>Views</span>
+
+                    <strong>
+                        {{ course.views }}
+                    </strong>
+
+                </div>
+
+
+                {% if user.is_authenticated %}
+
+                    {% if user in course.students.all %}
+
+                        {% with first_lesson=course.lessons.first %}
+
+                            {% if first_lesson %}
+
+                                <a
+                                    href="{% url 'lesson_detail' first_lesson.pk %}"
+                                    class="button button-full"
+                                >
+                                    Continue learning ↗
+                                </a>
+
+                            {% endif %}
+
+                        {% endwith %}
+
+                    {% else %}
+
+                        <form
+                            method="post"
+                            action="{% url 'course_join' course.pk %}"
+                        >
+
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="button button-full"
+                            >
+                                Join this course ↗
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+                {% else %}
+
+                    <a href="{% url 'login' %}"
+                       class="button button-full">
+                        Login to join ↗
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </aside>
+
+    </section>
+
+</div>
+
 {% endblock %}

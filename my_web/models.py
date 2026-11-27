@@ -77,6 +77,8 @@ class CourseLesson(models.Model):
     title = models.CharField(max_length=200)
     day = models.PositiveIntegerField(default=1)
     content = models.TextField(blank=True)
+    youtube_url = models.URLField(blank=True,verbose_name="YouTube video URL")
+    
 
     def __str__(self):
         return self.title
@@ -123,3 +125,57 @@ class EmailConfirmCode(models.Model):
         return self.user.username
 
 
+
+
+
+
+
+
+
+class LessonProgress(models.Model):
+    user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="lesson_progress")
+    lesson = models.ForeignKey(CourseLesson,on_delete=models.CASCADE,related_name="progress")
+    is_completed = models.BooleanField(default=False)
+    points_earned = models.PositiveIntegerField(default=0)
+    completed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [ models.UniqueConstraint(fields=["user", "lesson"],name="unique_user_lesson_progress")]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.lesson.title}"
+
+
+
+
+
+
+
+class LessonQuestion(models.Model):
+    lesson = models.ForeignKey(CourseLesson,on_delete=models.CASCADE,related_name="questions")
+    question = models.TextField()
+    correct_answer = models.CharField(max_length=500)
+    points = models.PositiveIntegerField(default=10)
+    order = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.lesson.title} - Question {self.order}"
+
+    class Meta:
+        ordering = ["order"]
+
+
+
+
+
+class QuestionProgress(models.Model):
+    user = models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="question_progress")
+    question = models.ForeignKey(LessonQuestion,on_delete=models.CASCADE,related_name="answers")
+    points_earned = models.PositiveIntegerField(default=0)
+    completed_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["user", "question"],name="unique_user_lesson_question")]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.question}"
